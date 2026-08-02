@@ -7,8 +7,24 @@ import { Footer } from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Nosso Bazar - Transição Brasil para Polônia",
-  description: "Itens da nossa casa disponíveis para venda.",
+  title: "Bazar da Mudança - Brasil para Polônia",
+  description: "Estamos de mudança! Nossa família está indo para a Polônia e vendendo alguns itens com muito carinho.",
+  openGraph: {
+    title: "Bazar da Mudança - Brasil para Polônia",
+    description: "Estamos de mudança! Nossa família está indo para a Polônia e vendendo alguns itens com muito carinho.",
+    url: "https://bazardoskaras.web.app",
+    siteName: "Bazar da Mudança",
+    images: [
+      {
+        url: "https://bazardoskaras.web.app/og-image.jpg",
+        width: 1280,
+        height: 720,
+        alt: "Bandeiras do Brasil e da Polônia",
+      }
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
