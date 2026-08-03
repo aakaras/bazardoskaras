@@ -11,8 +11,6 @@ export const metadata: Metadata = {
   description: "Estamos de mudança! Nossa família está indo para a Polônia e vendendo alguns itens com muito carinho.",
   icons: {
     icon: "/icon.png",
-    shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
   },
   openGraph: {
     title: "Bazar da Mudança - Brasil para Polônia",
