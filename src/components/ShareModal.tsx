@@ -8,7 +8,7 @@ interface ShareModalProps {
   text?: string;
   url?: string;
   buttonText?: string;
-  variant?: "primary" | "outline" | "icon" | "header";
+  variant?: "primary" | "outline" | "icon" | "header" | "card-icon";
   className?: string;
 }
 
@@ -71,7 +71,11 @@ export function ShareModal({
     return false;
   };
 
-  const handleOpenModal = async () => {
+  const handleOpenModal = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     // Tenta usar Web Share API em mobile primeiro se disponível
     if (typeof window !== "undefined" && window.innerWidth < 640 && canNativeShare()) {
       const shared = await handleNativeShare();
@@ -105,9 +109,17 @@ export function ShareModal({
         <button
           onClick={handleOpenModal}
           className={`p-2.5 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all ${className}`}
-          title="Compartilhar"
+          title="Compartilhar item"
         >
           <Share2 className="w-5 h-5 text-slate-700" />
+        </button>
+      ) : variant === "card-icon" ? (
+        <button
+          onClick={handleOpenModal}
+          className={`p-2 bg-white/90 hover:bg-white text-slate-700 hover:text-br-green rounded-full shadow-md backdrop-blur-sm transition-all hover:scale-110 active:scale-95 ${className}`}
+          title="Compartilhar item"
+        >
+          <Share2 className="w-4 h-4" />
         </button>
       ) : variant === "outline" ? (
         <button

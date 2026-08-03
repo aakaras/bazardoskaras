@@ -43,10 +43,6 @@ export default function Home() {
           Por isso, estamos vendendo alguns de nossos itens com muito carinho.
         </p>
         
-        <div className="flex justify-center pt-2 pb-1">
-          <ShareModal buttonText="Compartilhar Bazar com Amigos" />
-        </div>
-
         <div className="bg-amber-50 text-amber-800 p-4 rounded-xl text-sm sm:text-base border border-amber-100 shadow-sm mt-6 text-left">
           <strong>Atenção:</strong> Nenhuma venda ou pagamento é realizado diretamente por este site. 
           Todas as negociações, formas de pagamento, e combinações sobre retirada ou entrega serão feitas exclusivamente pelo <strong>WhatsApp</strong>. 
@@ -69,6 +65,16 @@ export default function Home() {
               className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-br-green/30 transition-all overflow-hidden flex flex-col"
             >
               <div className="aspect-square relative overflow-hidden bg-slate-100">
+                {/* Botão de Compartilhar Item no Card */}
+                <div className="absolute top-3 left-3 z-10">
+                  <ShareModal 
+                    variant="card-icon"
+                    url={typeof window !== "undefined" ? `${window.location.origin}/item?id=${item.id}` : `https://bazardoskaras.web.app/item?id=${item.id}`}
+                    title={`Confira: ${item.title} no Bazar da Mudança`}
+                    text={`Olha esse item no Bazar da Mudança: *${item.title}* por R$ ${item.price.toFixed(2).replace('.', ',')}! Confira:`}
+                  />
+                </div>
+
                 {item.images.length > 0 ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
@@ -102,7 +108,7 @@ export default function Home() {
                 <p className="text-br-green font-bold text-xl mb-3">
                   R$ {item.price.toFixed(2).replace('.', ',')}
                 </p>
-                <div className="mt-auto">
+                <div className="mt-auto flex items-center justify-between">
                   <span className="text-sm text-slate-500 font-medium group-hover:text-br-green transition-colors">
                     Ver detalhes →
                   </span>
