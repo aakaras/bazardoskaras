@@ -5,6 +5,7 @@ import { getItem, Item, createReservation } from "@/services/items";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { ShareModal } from "@/components/ShareModal";
 
 function ItemDetailsContent() {
   const searchParams = useSearchParams();
@@ -147,18 +148,26 @@ function ItemDetailsContent() {
               <p className="whitespace-pre-wrap text-slate-600">{item.description}</p>
             </div>
 
-            {item.status === 'available' ? (
-              <button 
-                onClick={() => setShowModal(true)}
-                className="w-full bg-slate-800 text-white py-3.5 rounded-xl font-medium hover:bg-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2"
-              >
-                Solicitar Reserva
-              </button>
-            ) : (
-              <div className="w-full bg-slate-100 text-slate-500 py-3.5 rounded-xl font-medium text-center border border-slate-200">
-                Item indisponível no momento
-              </div>
-            )}
+            <div className="flex gap-3">
+              {item.status === 'available' ? (
+                <button 
+                  onClick={() => setShowModal(true)}
+                  className="flex-1 bg-slate-800 text-white py-3.5 rounded-xl font-medium hover:bg-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2"
+                >
+                  Solicitar Reserva
+                </button>
+              ) : (
+                <div className="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-medium text-center border border-slate-200">
+                  Item indisponível no momento
+                </div>
+              )}
+
+              <ShareModal 
+                variant="icon" 
+                title={`Confira: ${item.title} no Bazar da Mudança`}
+                text={`Olha esse item no Bazar da Mudança: *${item.title}* por R$ ${item.price.toFixed(2).replace('.', ',')}! Confira:`}
+              />
+            </div>
           </div>
         </div>
       </div>

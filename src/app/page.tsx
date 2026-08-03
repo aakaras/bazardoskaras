@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getItems, Item } from "@/services/items";
 import Link from "next/link";
+import { ShareModal } from "@/components/ShareModal";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
@@ -42,6 +43,10 @@ export default function Home() {
           Por isso, estamos vendendo alguns de nossos itens com muito carinho.
         </p>
         
+        <div className="flex justify-center pt-2 pb-1">
+          <ShareModal buttonText="Compartilhar Bazar com Amigos" />
+        </div>
+
         <div className="bg-amber-50 text-amber-800 p-4 rounded-xl text-sm sm:text-base border border-amber-100 shadow-sm mt-6 text-left">
           <strong>Atenção:</strong> Nenhuma venda ou pagamento é realizado diretamente por este site. 
           Todas as negociações, formas de pagamento, e combinações sobre retirada ou entrega serão feitas exclusivamente pelo <strong>WhatsApp</strong>. 

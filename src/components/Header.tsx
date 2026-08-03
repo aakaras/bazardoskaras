@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogIn, ShoppingBag } from "lucide-react";
+import { ShareModal } from "@/components/ShareModal";
 
 export function Header() {
   return (
@@ -22,10 +23,11 @@ export function Header() {
             <span className="font-bold text-xl tracking-tight text-slate-800">Nosso Bazar</span>
           </Link>
           
-          <nav>
+          <nav className="flex items-center gap-3 sm:gap-4">
+            <ShareModal variant="header" buttonText="Compartilhar" />
             <Link 
               href="/admin" 
-              className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-100 border border-transparent"
             >
               <LogIn className="w-4 h-4" />
               <span>Admin</span>

@@ -1,12 +1,17 @@
+import { ShareModal } from "@/components/ShareModal";
+
 export function Footer() {
   return (
     <footer className="bg-slate-50 border-t border-slate-200 mt-auto">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col items-center justify-center text-center space-y-3">
-          <p className="text-sm text-slate-600 font-medium">
-            Comprando nossos items você estará ajudando em nossa transição do Brasil 🇧🇷 para a Polônia 🇵🇱
+        <div className="flex flex-col items-center justify-center text-center space-y-4">
+          <p className="text-sm text-slate-600 font-medium max-w-md">
+            Comprando nossos itens você estará ajudando em nossa transição do Brasil 🇧🇷 para a Polônia 🇵🇱
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+
+          <ShareModal variant="outline" buttonText="Compartilhar Bazar com Amigos" />
+
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500 pt-2">
             <span>Desenvolvido por <strong>Alison Karas</strong></span>
             <span className="text-slate-300">•</span>
             <a
