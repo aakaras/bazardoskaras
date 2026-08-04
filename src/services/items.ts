@@ -8,18 +8,33 @@ import {
   getDocs, 
   getDoc,
   query,
-  orderBy
+  orderBy,
+  increment
 } from "firebase/firestore";
 
 export type ItemStatus = "available" | "negotiating" | "sold";
+
+export const CATEGORIES = [
+  "Móveis",
+  "Eletrodomésticos",
+  "Eletrônicos",
+  "Utensílios / Casa",
+  "Decoração",
+  "Brinquedos / Infantil",
+  "Outros"
+] as const;
+
+export type ItemCategory = typeof CATEGORIES[number] | string;
 
 export interface Item {
   id?: string;
   title: string;
   description: string;
   price: number;
+  category?: ItemCategory;
   images: string[];
   status: ItemStatus;
+  interestedCount?: number;
   createdAt: number;
 }
 
@@ -38,8 +53,10 @@ const MOCK_ITEMS: Item[] = [
     title: "Sofá Retrátil 3 Lugares Cinza",
     description: "Sofá muito confortável, usado por apenas 1 ano. Sem manchas ou rasgos. Medidas: 2,20m x 1,10m (fechado) e 1,60m (aberto).",
     price: 1200,
+    category: "Móveis",
     images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800"],
     status: "available",
+    interestedCount: 0,
     createdAt: Date.now() - 100000
   },
   {
@@ -47,8 +64,10 @@ const MOCK_ITEMS: Item[] = [
     title: "Mesa de Jantar de Madeira + 6 Cadeiras",
     description: "Mesa maciça linda. Tem alguns pequenos arranhões de uso no tampo, mas no geral está em ótimo estado.",
     price: 850,
+    category: "Móveis",
     images: ["https://images.unsplash.com/photo-1617806118233-18e1c094f01e?auto=format&fit=crop&q=80&w=800"],
     status: "negotiating",
+    interestedCount: 2,
     createdAt: Date.now() - 200000
   },
   {
@@ -56,8 +75,10 @@ const MOCK_ITEMS: Item[] = [
     title: "TV Smart LG 55' 4K",
     description: "Smart TV funcionando perfeitamente, acompanha controle original. Excelente imagem.",
     price: 1800,
+    category: "Eletrônicos",
     images: ["https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&q=80&w=800"],
     status: "sold",
+    interestedCount: 1,
     createdAt: Date.now() - 300000
   }
 ];
@@ -92,9 +113,19 @@ export async function createItem(item: Omit<Item, "id" | "createdAt">): Promise<
   
   const docRef = await addDoc(collection(db, "items"), {
     ...item,
+    interestedCount: 0,
     createdAt: Date.now(),
   });
   return docRef.id;
+}
+
+export async function updateItem(id: string, itemData: Partial<Omit<Item, "id" | "createdAt">>): Promise<void> {
+  if (!isConfigured) {
+    alert("Operação indisponível em modo de visualização.");
+    return;
+  }
+  const docRef = doc(db, "items", id);
+  await updateDoc(docRef, itemData);
 }
 
 export async function updateItemStatus(id: string, status: ItemStatus): Promise<void> {
@@ -112,8 +143,6 @@ export async function deleteItem(id: string, images: string[]): Promise<void> {
     return;
   }
   
-  // Note: ImgBB doesn't provide a simple delete API for anonymous uploads in the free tier
-  // So we just leave the image there (it's isolated) and only delete the Firestore document
   await deleteDoc(doc(db, "items", id));
 }
 
@@ -148,6 +177,11 @@ export async function uploadImage(file: File): Promise<string> {
 // RESERVATIONS
 export async function createReservation(reservation: Omit<Reservation, "id" | "createdAt">): Promise<string> {
   if (!isConfigured) {
+    const mockItem = MOCK_ITEMS.find(i => i.id === reservation.itemId);
+    if (mockItem) {
+      mockItem.status = "negotiating";
+      mockItem.interestedCount = (mockItem.interestedCount || 0) + 1;
+    }
     return "mock-reservation-id";
   }
   
@@ -156,8 +190,15 @@ export async function createReservation(reservation: Omit<Reservation, "id" | "c
     createdAt: Date.now(),
   });
   
-  // Update item status to negotiating
-  await updateItemStatus(reservation.itemId, "negotiating");
+  // Update item status to negotiating and increment interested count
+  const itemDocRef = doc(db, "items", reservation.itemId);
+  const itemSnap = await getDoc(itemDocRef);
+  const currentStatus = itemSnap.exists() ? itemSnap.data().status : "available";
+
+  await updateDoc(itemDocRef, {
+    status: currentStatus === "sold" ? "sold" : "negotiating",
+    interestedCount: increment(1)
+  });
   
   return docRef.id;
 }

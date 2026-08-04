@@ -128,12 +128,12 @@ function ItemDetailsContent() {
           <div className="p-6 sm:p-8 flex flex-col">
             <div className="mb-4">
               {item.status === 'negotiating' && (
-                <span className="inline-block bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
-                  Em negociação
+                <span className="inline-block bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">
+                  Em negociação ({item.interestedCount && item.interestedCount > 0 ? item.interestedCount : 1} {(item.interestedCount || 1) === 1 ? 'interessado' : 'interessados'})
                 </span>
               )}
               {item.status === 'sold' && (
-                <span className="inline-block bg-pl-red text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
+                <span className="inline-block bg-pl-red text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">
                   Vendido
                 </span>
               )}
@@ -149,16 +149,16 @@ function ItemDetailsContent() {
             </div>
 
             <div className="flex gap-3">
-              {item.status === 'available' ? (
+              {item.status !== 'sold' ? (
                 <button 
                   onClick={() => setShowModal(true)}
                   className="flex-1 bg-slate-800 text-white py-3.5 rounded-xl font-medium hover:bg-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2"
                 >
-                  Solicitar Reserva
+                  {item.status === 'negotiating' ? 'Solicitar Reserva (Demonstrar Interesse)' : 'Solicitar Reserva'}
                 </button>
               ) : (
                 <div className="flex-1 bg-slate-100 text-slate-500 py-3.5 rounded-xl font-medium text-center border border-slate-200">
-                  Item indisponível no momento
+                  Item vendido
                 </div>
               )}
 
