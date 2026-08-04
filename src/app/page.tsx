@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { getItems, Item } from "@/services/items";
 import Link from "next/link";
 import { ShareModal } from "@/components/ShareModal";
+import { Tag } from "lucide-react";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     loadItems();
@@ -24,6 +26,17 @@ export default function Home() {
     }
   };
 
+  // Regra: As categorias do filtro aparecem SOMENTE para itens que ainda NÃO foram vendidos
+  const activeNonSoldItems = items.filter(item => item.status !== "sold");
+  const availableCategories = Array.from(
+    new Set(activeNonSoldItems.map(item => item.category).filter(Boolean))
+  ) as string[];
+
+  // Filtragem dos itens exibidos com base na categoria selecionada
+  const filteredItems = selectedCategory === "all"
+    ? items
+    : items.filter(item => item.category === selectedCategory);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -34,6 +47,7 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
+      {/* Banner de Boas-Vindas */}
       <div className="text-center space-y-4 max-w-3xl mx-auto py-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">
           Bazar da Mudança
@@ -52,13 +66,60 @@ export default function Home() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {/* Barra de Filtro de Categorias (Aparecem apenas categorias de itens não vendidos) */}
+      {availableCategories.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <Tag className="w-3.5 h-3.5" />
+            <span>Filtrar por Categoria:</span>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                selectedCategory === "all"
+                  ? "bg-slate-800 text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              Todos os Itens ({items.length})
+            </button>
+            {availableCategories.map((cat) => {
+              const count = items.filter(item => item.category === cat).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    selectedCategory === cat
+                      ? "bg-br-green text-white shadow-sm font-semibold"
+                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  {cat} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Lista de Itens */}
+      {filteredItems.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm">
-          <p className="text-slate-500">Nenhum item disponível no momento.</p>
+          <p className="text-slate-500">Nenhum item encontrado para a categoria selecionada.</p>
+          {selectedCategory !== "all" && (
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className="mt-3 text-sm text-br-green font-medium hover:underline"
+            >
+              Ver todos os itens
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <Link 
               href={`/item?id=${item.id}`} 
               key={item.id}
@@ -92,7 +153,7 @@ export default function Home() {
                 <div className="absolute top-3 right-3 flex flex-col gap-2">
                   {item.status === 'negotiating' && (
                     <span className="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                      Em negociação
+                      Em negociação ({item.interestedCount && item.interestedCount > 0 ? item.interestedCount : 1})
                     </span>
                   )}
                   {item.status === 'sold' && (
@@ -104,6 +165,11 @@ export default function Home() {
               </div>
               
               <div className="p-5 flex flex-col flex-1">
+                {item.category && (
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                    {item.category}
+                  </span>
+                )}
                 <h3 className="font-semibold text-lg text-slate-800 line-clamp-1 mb-1">{item.title}</h3>
                 <p className="text-br-green font-bold text-xl mb-3">
                   R$ {item.price.toFixed(2).replace('.', ',')}

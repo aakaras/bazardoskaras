@@ -25,13 +25,6 @@ export function Header() {
           
           <nav className="flex items-center gap-3 sm:gap-4">
             <ShareModal variant="header" buttonText="Compartilhar" />
-            <Link 
-              href="/admin" 
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-1.5 px-3 rounded-lg hover:bg-slate-100 border border-transparent"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Admin</span>
-            </Link>
           </nav>
         </div>
       </div>
