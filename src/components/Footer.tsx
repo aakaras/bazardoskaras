@@ -35,7 +35,7 @@ export function Footer() {
             </a>
           </div>
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} Nosso Bazar. Todos os direitos reservados.
+            © {new Date().getFullYear()} Bazar dos Karas. Todos os direitos reservados.
           </p>
         </div>
       </div>
