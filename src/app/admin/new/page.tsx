@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { createItem, uploadImage, CATEGORIES } from "@/services/items";
+import { createItem, uploadImage, CATEGORIES, ItemStatus } from "@/services/items";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, Upload, X, Save, Send } from "lucide-react";
 import Link from "next/link";
 
 export default function NewItem() {
@@ -15,6 +15,7 @@ export default function NewItem() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [status, setStatus] = useState<ItemStatus>("available");
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,8 +34,7 @@ export default function NewItem() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmitWithStatus = async (targetStatus: ItemStatus) => {
     if (files.length === 0) {
       alert("Adicione pelo menos 1 foto do item.");
       return;
@@ -47,14 +47,14 @@ export default function NewItem() {
         files.map(file => uploadImage(file))
       );
 
-      // 2. Create item
+      // 2. Create item with selected status
       await createItem({
         title,
         description,
         price: parseFloat(price),
         category,
         images: uploadedUrls,
-        status: "available",
+        status: targetStatus,
       });
 
       router.push("/admin");
@@ -64,6 +64,11 @@ export default function NewItem() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmitWithStatus(status);
   };
 
   if (loading) return null;
@@ -134,6 +139,41 @@ export default function NewItem() {
                 ))}
               </select>
             </div>
+
+            <div className="sm:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <label className="block text-sm font-semibold text-slate-800 mb-2">Visibilidade / Status de Publicação</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${status === 'available' ? 'bg-white border-br-green ring-2 ring-br-green/20' : 'bg-slate-100/60 border-slate-200'}`}>
+                  <input
+                    type="radio"
+                    name="statusOption"
+                    value="available"
+                    checked={status === 'available'}
+                    onChange={() => setStatus('available')}
+                    className="mt-0.5 text-br-green focus:ring-br-green"
+                  />
+                  <div>
+                    <span className="font-semibold text-slate-800 text-sm block">Publicar Imediatamente</span>
+                    <span className="text-xs text-slate-500 block">O item fica visível na vitrine pública do site.</span>
+                  </div>
+                </label>
+
+                <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${status === 'draft' ? 'bg-white border-purple-500 ring-2 ring-purple-500/20' : 'bg-slate-100/60 border-slate-200'}`}>
+                  <input
+                    type="radio"
+                    name="statusOption"
+                    value="draft"
+                    checked={status === 'draft'}
+                    onChange={() => setStatus('draft')}
+                    className="mt-0.5 text-purple-600 focus:ring-purple-500"
+                  />
+                  <div>
+                    <span className="font-semibold text-purple-900 text-sm block">Salvar como Rascunho</span>
+                    <span className="text-xs text-purple-700/80 block">Guarda no admin para você publicar depois.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -169,13 +209,25 @@ export default function NewItem() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex justify-end">
+          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
             <button
-              type="submit"
+              type="button"
               disabled={submitting}
-              className="bg-br-green text-white px-6 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+              onClick={() => handleSubmitWithStatus("draft")}
+              className="flex items-center justify-center gap-2 bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 px-5 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50 text-sm"
             >
-              {submitting ? "Salvando..." : "Salvar Item"}
+              <Save className="w-4 h-4" />
+              <span>Salvar como Rascunho</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => handleSubmitWithStatus("available")}
+              className="flex items-center justify-center gap-2 bg-br-green text-white px-6 py-2.5 rounded-xl font-medium hover:bg-green-700 transition-colors disabled:opacity-50 text-sm shadow-sm"
+            >
+              <Send className="w-4 h-4" />
+              <span>Publicar Item</span>
             </button>
           </div>
         </form>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getItems, Item } from "@/services/items";
+import { getPublicItems, Item } from "@/services/items";
 import Link from "next/link";
 import { ShareModal } from "@/components/ShareModal";
 import { Tag } from "lucide-react";
@@ -17,7 +17,7 @@ export default function Home() {
 
   const loadItems = async () => {
     try {
-      const data = await getItems();
+      const data = await getPublicItems();
       setItems(data);
     } catch (error) {
       console.error("Error loading items", error);
@@ -26,8 +26,8 @@ export default function Home() {
     }
   };
 
-  // Regra: As categorias do filtro aparecem SOMENTE para itens que ainda NÃO foram vendidos
-  const activeNonSoldItems = items.filter(item => item.status !== "sold");
+  // Regra: As categorias do filtro aparecem SOMENTE para itens que ainda NÃO foram vendidos ou rascunho
+  const activeNonSoldItems = items.filter(item => item.status !== "sold" && item.status !== "draft");
   const availableCategories = Array.from(
     new Set(activeNonSoldItems.map(item => item.category).filter(Boolean))
   ) as string[];

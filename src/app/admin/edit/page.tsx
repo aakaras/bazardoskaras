@@ -199,7 +199,8 @@ function EditItemContent() {
                 required
                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50 focus:border-br-green bg-white font-medium"
               >
-                <option value="available">Disponível</option>
+                <option value="draft">Rascunho (Não publicado)</option>
+                <option value="available">Disponível (Publicado)</option>
                 <option value="negotiating">Em negociação</option>
                 <option value="sold">Vendido</option>
               </select>

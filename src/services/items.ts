@@ -12,7 +12,7 @@ import {
   increment
 } from "firebase/firestore";
 
-export type ItemStatus = "available" | "negotiating" | "sold";
+export type ItemStatus = "draft" | "available" | "negotiating" | "sold";
 
 export const CATEGORIES = [
   "Móveis",
@@ -80,6 +80,17 @@ const MOCK_ITEMS: Item[] = [
     status: "sold",
     interestedCount: 1,
     createdAt: Date.now() - 300000
+  },
+  {
+    id: "mock-4",
+    title: "Luminária de Chão Vintage (Rascunho)",
+    description: "Luminária em latão com iluminação suave. Em fase de preparação.",
+    price: 350,
+    category: "Decoração",
+    images: ["https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=800"],
+    status: "draft",
+    interestedCount: 0,
+    createdAt: Date.now() - 50000
   }
 ];
 
@@ -90,6 +101,11 @@ export async function getItems(): Promise<Item[]> {
   const q = query(collection(db, "items"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Item));
+}
+
+export async function getPublicItems(): Promise<Item[]> {
+  const allItems = await getItems();
+  return allItems.filter(item => item.status !== "draft");
 }
 
 export async function getItem(id: string): Promise<Item | null> {
@@ -113,7 +129,7 @@ export async function createItem(item: Omit<Item, "id" | "createdAt">): Promise<
   
   const docRef = await addDoc(collection(db, "items"), {
     ...item,
-    interestedCount: 0,
+    interestedCount: item.interestedCount || 0,
     createdAt: Date.now(),
   });
   return docRef.id;

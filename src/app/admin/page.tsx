@@ -2,55 +2,74 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { getItems, Item, updateItemStatus, deleteItem } from "@/services/items";
-import { LogOut, Plus, Trash2, Edit, DollarSign, CheckCircle2, Clock, ShoppingBag } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { getItems, deleteItem, updateItemStatus, Item } from "@/services/items";
+import { auth, isConfigured } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Plus, Trash2, Edit, LogOut, ShoppingBag, DollarSign, Clock, CheckCircle2, FileText } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth(true);
   const [items, setItems] = useState<Item[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getItems();
+        setItems(data);
+      } catch (error) {
+        console.error("Erro ao carregar itens:", error);
+      } finally {
+        setLoadingItems(false);
+      }
+    }
+
     if (user) {
-      loadItems();
+      loadData();
     }
   }, [user]);
 
-  const loadItems = async () => {
-    try {
-      const data = await getItems();
-      setItems(data);
-    } catch (error) {
-      console.error("Error loading items", error);
-    } finally {
-      setLoadingItems(false);
-    }
-  };
-
-  const handleLogout = () => {
-    auth.signOut();
-    router.push("/");
-  };
-
   const handleDelete = async (id: string, images: string[]) => {
     if (confirm("Tem certeza que deseja excluir este item?")) {
-      await deleteItem(id, images);
-      loadItems();
+      try {
+        await deleteItem(id, images);
+        setItems((prev) => prev.filter((item) => item.id !== id));
+      } catch (error) {
+        console.error("Erro ao excluir item:", error);
+        alert("Ocorreu um erro ao excluir o item.");
+      }
     }
   };
 
   const handleStatusChange = async (id: string, newStatus: Item["status"]) => {
-    await updateItemStatus(id, newStatus);
-    loadItems();
+    try {
+      await updateItemStatus(id, newStatus);
+      setItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      alert("Ocorreu um erro ao atualizar o status.");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      if (isConfigured) {
+        await signOut(auth);
+      }
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
   };
 
   // Cálculo das Métricas
   const totalCount = items.length;
   const totalValue = items.reduce((acc, item) => acc + item.price, 0);
+
+  const draftItems = items.filter(item => item.status === "draft");
+  const draftValue = draftItems.reduce((acc, item) => acc + item.price, 0);
 
   const availableItems = items.filter(item => item.status === "available");
   const availableValue = availableItems.reduce((acc, item) => acc + item.price, 0);
@@ -73,7 +92,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Painel de Controle</h1>
-          <p className="text-sm text-slate-500">Gerencie seus itens, edite preços e acompanhe o balanço.</p>
+          <p className="text-sm text-slate-500">Gerencie seus itens, edite preços, crie rascunhos e acompanhe o balanço.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Link
@@ -94,7 +113,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Grid de Métricas TOTAIS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Total Geral */}
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
@@ -103,7 +122,19 @@ export default function AdminDashboard() {
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Anunciado</p>
             <p className="text-xl font-bold text-slate-800">R$ {totalValue.toFixed(2).replace('.', ',')}</p>
-            <p className="text-xs text-slate-500 font-medium">{totalCount} {totalCount === 1 ? 'item' : 'itens'} no total</p>
+            <p className="text-xs text-slate-500 font-medium">{totalCount} {totalCount === 1 ? 'item' : 'itens'}</p>
+          </div>
+        </div>
+
+        {/* Rascunhos */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
+            <FileText className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">Rascunhos</p>
+            <p className="text-xl font-bold text-purple-900">R$ {draftValue.toFixed(2).replace('.', ',')}</p>
+            <p className="text-xs text-purple-600 font-medium">{draftItems.length} {draftItems.length === 1 ? 'rascunho' : 'rascunhos'}</p>
           </div>
         </div>
 
@@ -171,8 +202,14 @@ export default function AdminDashboard() {
               ) : (
                 items.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-slate-800">
-                      {item.title}
+                    <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.images[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=200"}
+                        alt={item.title}
+                        className="w-10 h-10 object-cover rounded-lg bg-slate-100 shrink-0"
+                      />
+                      <span className="line-clamp-1">{item.title}</span>
                     </td>
                     <td className="px-6 py-4 text-xs font-medium text-slate-500">
                       <span className="bg-slate-100 px-2.5 py-1 rounded-md">
@@ -187,10 +224,12 @@ export default function AdminDashboard() {
                         value={item.status}
                         onChange={(e) => handleStatusChange(item.id!, e.target.value as Item["status"])}
                         className={`text-xs font-medium px-2.5 py-1 rounded-full border outline-none cursor-pointer
-                          ${item.status === 'available' ? 'bg-green-50 text-green-700 border-green-200' : 
+                          ${item.status === 'draft' ? 'bg-purple-50 text-purple-700 border-purple-200 font-semibold' :
+                            item.status === 'available' ? 'bg-green-50 text-green-700 border-green-200' : 
                             item.status === 'negotiating' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 
                             'bg-slate-100 text-slate-700 border-slate-200'}`}
                       >
+                        <option value="draft">Rascunho</option>
                         <option value="available">Disponível</option>
                         <option value="negotiating">Em negociação</option>
                         <option value="sold">Vendido</option>
@@ -204,7 +243,7 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4 text-right space-x-2">
                       <Link
                         href={`/admin/edit?id=${item.id}`}
-                        className="p-1.5 text-slate-600 hover:text-br-green hover:bg-slate-100 rounded-lg transition-colors inline-inline-flex items-center"
+                        className="p-1.5 text-slate-600 hover:text-br-green hover:bg-slate-100 rounded-lg transition-colors inline-flex items-center"
                         title="Editar"
                       >
                         <Edit className="w-4 h-4 inline" />

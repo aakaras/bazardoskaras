@@ -127,6 +127,11 @@ function ItemDetailsContent() {
           {/* Detalhes */}
           <div className="p-6 sm:p-8 flex flex-col">
             <div className="mb-4">
+              {item.status === 'draft' && (
+                <span className="inline-block bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">
+                  Rascunho (Não publicado)
+                </span>
+              )}
               {item.status === 'negotiating' && (
                 <span className="inline-block bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 shadow-sm">
                   Em negociação ({item.interestedCount && item.interestedCount > 0 ? item.interestedCount : 1} {(item.interestedCount || 1) === 1 ? 'interessado' : 'interessados'})
@@ -149,7 +154,11 @@ function ItemDetailsContent() {
             </div>
 
             <div className="flex gap-3">
-              {item.status !== 'sold' ? (
+              {item.status === 'draft' ? (
+                <div className="flex-1 bg-purple-50 text-purple-700 py-3.5 rounded-xl font-medium text-center border border-purple-200 text-sm">
+                  Item em rascunho (Ainda não publicado)
+                </div>
+              ) : item.status !== 'sold' ? (
                 <button 
                   onClick={() => setShowModal(true)}
                   className="flex-1 bg-slate-800 text-white py-3.5 rounded-xl font-medium hover:bg-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2"
