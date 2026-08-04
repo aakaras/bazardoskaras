@@ -13,16 +13,16 @@ export function Header() {
         <div className="h-full bg-pl-white w-1/6"></div>
         <div className="h-full bg-pl-red w-2/6"></div>
       </div>
-      
+
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-slate-100 p-2 rounded-full">
               <ShoppingBag className="w-5 h-5 text-slate-700" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-800">Nosso Bazar</span>
+            <span className="font-bold text-xl tracking-tight text-slate-800">Bazar dos Karas</span>
           </Link>
-          
+
           <nav className="flex items-center gap-3 sm:gap-4">
             <ShareModal variant="header" buttonText="Compartilhar" />
           </nav>
