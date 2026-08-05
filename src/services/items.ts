@@ -31,6 +31,7 @@ export interface Item {
   title: string;
   description: string;
   price: number;
+  originalPrice?: number;
   category?: ItemCategory;
   images: string[];
   status: ItemStatus;
@@ -53,6 +54,7 @@ const MOCK_ITEMS: Item[] = [
     title: "Sofá Retrátil 3 Lugares Cinza",
     description: "Sofá muito confortável, usado por apenas 1 ano. Sem manchas ou rasgos. Medidas: 2,20m x 1,10m (fechado) e 1,60m (aberto).",
     price: 1200,
+    originalPrice: 3500,
     category: "Móveis",
     images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800"],
     status: "available",
@@ -64,6 +66,7 @@ const MOCK_ITEMS: Item[] = [
     title: "Mesa de Jantar de Madeira + 6 Cadeiras",
     description: "Mesa maciça linda. Tem alguns pequenos arranhões de uso no tampo, mas no geral está em ótimo estado.",
     price: 850,
+    originalPrice: 2200,
     category: "Móveis",
     images: ["https://images.unsplash.com/photo-1617806118233-18e1c094f01e?auto=format&fit=crop&q=80&w=800"],
     status: "negotiating",
@@ -75,6 +78,7 @@ const MOCK_ITEMS: Item[] = [
     title: "TV Smart LG 55' 4K",
     description: "Smart TV funcionando perfeitamente, acompanha controle original. Excelente imagem.",
     price: 1800,
+    originalPrice: 3100,
     category: "Eletrônicos",
     images: ["https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&q=80&w=800"],
     status: "sold",

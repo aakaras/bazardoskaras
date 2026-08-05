@@ -171,9 +171,21 @@ export default function Home() {
                   </span>
                 )}
                 <h3 className="font-semibold text-lg text-slate-800 line-clamp-1 mb-1">{item.title}</h3>
-                <p className="text-br-green font-bold text-xl mb-3">
-                  R$ {item.price.toFixed(2).replace('.', ',')}
-                </p>
+                <div className="mb-3">
+                  {item.originalPrice && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-slate-400 line-through">
+                        Novo: R$ {item.originalPrice.toFixed(2).replace('.', ',')}
+                      </span>
+                      <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                        -{Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}%
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-br-green font-bold text-xl">
+                    R$ {item.price.toFixed(2).replace('.', ',')}
+                  </p>
+                </div>
                 <div className="mt-auto flex items-center justify-between">
                   <span className="text-sm text-slate-500 font-medium group-hover:text-br-green transition-colors">
                     Ver detalhes →
