@@ -14,6 +14,7 @@ export default function NewItem() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [status, setStatus] = useState<ItemStatus>("available");
   const [files, setFiles] = useState<File[]>([]);
@@ -52,6 +53,7 @@ export default function NewItem() {
         title,
         description,
         price: parseFloat(price),
+        ...(originalPrice && { originalPrice: parseFloat(originalPrice) }),
         category,
         images: uploadedUrls,
         status: targetStatus,
@@ -111,7 +113,7 @@ export default function NewItem() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Preço (R$)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Preço de Venda (R$)</label>
               <input
                 type="number"
                 step="0.01"
@@ -119,6 +121,19 @@ export default function NewItem() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50 focus:border-br-green font-semibold text-br-green"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Preço Original de Novo (R$) <span className="text-slate-400 font-normal text-xs">(Opcional)</span></label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={originalPrice}
+                onChange={(e) => setOriginalPrice(e.target.value)}
                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50 focus:border-br-green"
                 placeholder="0.00"
               />
