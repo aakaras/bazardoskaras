@@ -26,6 +26,14 @@ export const CATEGORIES = [
 
 export type ItemCategory = typeof CATEGORIES[number] | string;
 
+export interface SaleDetails {
+  buyerName: string;
+  buyerPhone?: string;
+  pricePaid: number;
+  deliveryMethod: string;
+  agreedDate: string;
+}
+
 export interface Item {
   id?: string;
   title: string;
@@ -35,6 +43,7 @@ export interface Item {
   category?: ItemCategory;
   images: string[];
   status: ItemStatus;
+  saleDetails?: SaleDetails;
   interestedCount?: number;
   createdAt: number;
 }
