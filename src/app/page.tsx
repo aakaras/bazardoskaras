@@ -10,6 +10,7 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [hideSold, setHideSold] = useState(false);
 
   useEffect(() => {
     loadItems();
@@ -33,9 +34,13 @@ export default function Home() {
   ) as string[];
 
   // Filtragem dos itens exibidos com base na categoria selecionada
-  const filteredItems = selectedCategory === "all"
+  let filteredItems = selectedCategory === "all"
     ? items
     : items.filter(item => item.category === selectedCategory);
+
+  if (hideSold) {
+    filteredItems = filteredItems.filter(item => item.status !== 'sold');
+  }
 
   if (loading) {
     return (
@@ -69,9 +74,21 @@ export default function Home() {
       {/* Barra de Filtro de Categorias (Aparecem apenas categorias de itens não vendidos) */}
       {availableCategories.length > 0 && (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            <Tag className="w-3.5 h-3.5" />
-            <span>Filtrar por Categoria:</span>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <Tag className="w-3.5 h-3.5" />
+              <span>Filtrar por Categoria:</span>
+            </div>
+            
+            <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-600 font-medium bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm w-fit">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                checked={hideSold}
+                onChange={(e) => setHideSold(e.target.checked)}
+              />
+              Ocultar itens vendidos
+            </label>
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
             <button
