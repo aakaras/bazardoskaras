@@ -111,7 +111,7 @@ export default function AdminDashboard() {
     const [year, month, day] = agreedDate.split('-');
     const formattedDate = `${day}/${month}/${year}`;
 
-    const message = `Olá ${buyerName}! Muito obrigado pela sua compra.\n\nAqui estão os detalhes do seu item:\n- Item: ${item.title}\n- Valor: R$ ${pricePaid.toFixed(2).replace('.', ',')}\n- Retirada/Entrega: ${deliveryMethod}\n- Data combinada: ${formattedDate}\n\nAgradecemos a preferência!`;
+    const message = `Olá ${buyerName}! Muito obrigado pela sua compra.\n\nAqui estão os detalhes do seu item:\n- Item: ${item.title}\n- Valor: R$ ${pricePaid.toFixed(2).replace('.', ',')}\n- Retirada/Entrega: ${deliveryMethod}\n- Data combinada: ${formattedDate}\n\nMuito obrigado por ajudar em nossa transição do Brasil 🇧🇷 para a Polônia 🇵🇱`;
     
     if (buyerPhone) {
       // Remove caracteres não numéricos do telefone
