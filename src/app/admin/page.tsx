@@ -2,16 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { getItems, deleteItem, updateItemStatus, Item } from "@/services/items";
+import { getItems, deleteItem, updateItemStatus, updateItem, Item, SaleDetails } from "@/services/items";
 import { auth, isConfigured } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import Link from "next/link";
-import { Plus, Trash2, Edit, LogOut, ShoppingBag, DollarSign, Clock, CheckCircle2, FileText } from "lucide-react";
+import { Plus, Trash2, Edit, LogOut, ShoppingBag, DollarSign, Clock, CheckCircle2, FileText, MessageCircle, X } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth(true);
   const [items, setItems] = useState<Item[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
+
+  // Modal State for Sale Details
+  const [selectedItemForSale, setSelectedItemForSale] = useState<Item | null>(null);
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
+  const [pricePaid, setPricePaid] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("Retirada no local");
+  const [agreedDate, setAgreedDate] = useState("");
+  const [submittingSale, setSubmittingSale] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -52,6 +61,65 @@ export default function AdminDashboard() {
       console.error("Erro ao atualizar status:", error);
       alert("Ocorreu um erro ao atualizar o status.");
     }
+  };
+
+  const openSaleModal = (item: Item) => {
+    setSelectedItemForSale(item);
+    setBuyerName("");
+    setBuyerPhone("");
+    setPricePaid(item.price.toString());
+    setDeliveryMethod("Retirada no local");
+    setAgreedDate(new Date().toISOString().split('T')[0]); // Today's date by default
+  };
+
+  const handleSaveSaleDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItemForSale?.id) return;
+
+    setSubmittingSale(true);
+    try {
+      const saleDetails: SaleDetails = {
+        buyerName,
+        buyerPhone,
+        pricePaid: parseFloat(pricePaid),
+        deliveryMethod,
+        agreedDate,
+      };
+
+      await updateItem(selectedItemForSale.id, { 
+        status: "sold", 
+        saleDetails 
+      });
+
+      setItems((prev) =>
+        prev.map((item) => (item.id === selectedItemForSale.id ? { ...item, status: "sold", saleDetails } : item))
+      );
+      setSelectedItemForSale(null);
+    } catch (error) {
+      console.error("Erro ao registrar venda:", error);
+      alert("Ocorreu um erro ao registrar a venda.");
+    } finally {
+      setSubmittingSale(false);
+    }
+  };
+
+  const getWhatsAppLink = (item: Item) => {
+    if (!item.saleDetails) return "#";
+    const { buyerName, buyerPhone, pricePaid, deliveryMethod, agreedDate } = item.saleDetails;
+    
+    // Formata a data (assumindo YYYY-MM-DD)
+    const [year, month, day] = agreedDate.split('-');
+    const formattedDate = `${day}/${month}/${year}`;
+
+    const message = `Olá ${buyerName}! Muito obrigado pela sua compra.\n\nAqui estão os detalhes do seu item:\n- Item: ${item.title}\n- Valor: R$ ${pricePaid.toFixed(2).replace('.', ',')}\n- Retirada/Entrega: ${deliveryMethod}\n- Data combinada: ${formattedDate}\n\nAgradecemos a preferência!`;
+    
+    if (buyerPhone) {
+      // Remove caracteres não numéricos do telefone
+      const cleanPhone = buyerPhone.replace(/\D/g, '');
+      return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
+    }
+    
+    return `https://wa.me/?text=${encodeURIComponent(message)}`;
   };
 
   const handleLogout = async () => {
@@ -222,7 +290,14 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4">
                       <select
                         value={item.status}
-                        onChange={(e) => handleStatusChange(item.id!, e.target.value as Item["status"])}
+                        onChange={(e) => {
+                          const newStatus = e.target.value as Item["status"];
+                          if (newStatus === "sold" && item.status !== "sold") {
+                            openSaleModal(item);
+                          } else {
+                            handleStatusChange(item.id!, newStatus);
+                          }
+                        }}
                         className={`text-xs font-medium px-2.5 py-1 rounded-full border outline-none cursor-pointer
                           ${item.status === 'draft' ? 'bg-purple-50 text-purple-700 border-purple-200 font-semibold' :
                             item.status === 'available' ? 'bg-green-50 text-green-700 border-green-200' : 
@@ -241,6 +316,17 @@ export default function AdminDashboard() {
                       ) : null}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
+                      {item.status === "sold" && item.saleDetails && (
+                        <a
+                          href={getWhatsAppLink(item)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-flex items-center"
+                          title="Enviar Recibo WhatsApp"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </a>
+                      )}
                       <Link
                         href={`/admin/edit?id=${item.id}`}
                         className="p-1.5 text-slate-600 hover:text-br-green hover:bg-slate-100 rounded-lg transition-colors inline-flex items-center"
@@ -263,6 +349,103 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Modal de Detalhes da Venda */}
+      {selectedItemForSale && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Confirmar Venda</h3>
+                <p className="text-xs text-slate-500 mt-1 line-clamp-1">{selectedItemForSale.title}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedItemForSale(null)}
+                className="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveSaleDetails} className="p-5 overflow-y-auto space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Comprador</label>
+                <input
+                  type="text"
+                  required
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50"
+                  placeholder="Ex: João Silva"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Telefone / WhatsApp <span className="text-slate-400 font-normal text-xs">(Opcional)</span></label>
+                <input
+                  type="tel"
+                  value={buyerPhone}
+                  onChange={(e) => setBuyerPhone(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50"
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Valor Pago (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  value={pricePaid}
+                  onChange={(e) => setPricePaid(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50 font-semibold text-emerald-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Forma de Retirada/Entrega</label>
+                <input
+                  type="text"
+                  required
+                  value={deliveryMethod}
+                  onChange={(e) => setDeliveryMethod(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Data Combinada</label>
+                <input
+                  type="date"
+                  required
+                  value={agreedDate}
+                  onChange={(e) => setAgreedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50"
+                />
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItemForSale(null)}
+                  className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingSale}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                >
+                  {submittingSale ? "Salvando..." : "Confirmar Venda"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

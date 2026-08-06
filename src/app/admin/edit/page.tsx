@@ -24,6 +24,13 @@ function EditItemContent() {
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
+  // Sale Details State
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
+  const [salePricePaid, setSalePricePaid] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("Retirada no local");
+  const [agreedDate, setAgreedDate] = useState("");
+
   useEffect(() => {
     if (id) {
       loadItemData(id);
@@ -43,6 +50,17 @@ function EditItemContent() {
         setCategory(data.category || CATEGORIES[0]);
         setStatus(data.status);
         setExistingImages(data.images || []);
+
+        if (data.saleDetails) {
+          setBuyerName(data.saleDetails.buyerName);
+          setBuyerPhone(data.saleDetails.buyerPhone || "");
+          setSalePricePaid(data.saleDetails.pricePaid.toString());
+          setDeliveryMethod(data.saleDetails.deliveryMethod);
+          setAgreedDate(data.saleDetails.agreedDate);
+        } else {
+          setSalePricePaid(data.price.toString());
+          setAgreedDate(new Date().toISOString().split('T')[0]);
+        }
       }
     } catch (error) {
       console.error("Erro ao carregar item:", error);
@@ -93,7 +111,7 @@ function EditItemContent() {
       const allImages = [...existingImages, ...newlyUploadedUrls];
 
       // 2. Update item
-      await updateItem(id, {
+      const itemUpdate: any = {
         title,
         description,
         price: parseFloat(price),
@@ -101,7 +119,19 @@ function EditItemContent() {
         category,
         status,
         images: allImages,
-      });
+      };
+
+      if (status === "sold") {
+        itemUpdate.saleDetails = {
+          buyerName,
+          buyerPhone,
+          pricePaid: parseFloat(salePricePaid),
+          deliveryMethod,
+          agreedDate,
+        };
+      }
+
+      await updateItem(id, itemUpdate);
 
       router.push("/admin");
     } catch (error) {
@@ -220,6 +250,71 @@ function EditItemContent() {
                 <option value="sold">Vendido</option>
               </select>
             </div>
+
+            {status === 'sold' && (
+              <div className="sm:col-span-2 bg-emerald-50 border border-emerald-100 rounded-xl p-5 space-y-4">
+                <h3 className="font-semibold text-emerald-800 border-b border-emerald-200/50 pb-2">Detalhes da Venda</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-900 mb-1">Nome do Comprador</label>
+                    <input
+                      type="text"
+                      required
+                      value={buyerName}
+                      onChange={(e) => setBuyerName(e.target.value)}
+                      className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
+                      placeholder="Ex: João Silva"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-900 mb-1">Telefone / WhatsApp <span className="font-normal text-xs">(Opcional)</span></label>
+                    <input
+                      type="tel"
+                      value={buyerPhone}
+                      onChange={(e) => setBuyerPhone(e.target.value)}
+                      className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
+                      placeholder="(11) 99999-9999"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-900 mb-1">Valor Pago (R$)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      required
+                      value={salePricePaid}
+                      onChange={(e) => setSalePricePaid(e.target.value)}
+                      className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-semibold text-emerald-700 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-900 mb-1">Forma de Retirada/Entrega</label>
+                    <input
+                      type="text"
+                      required
+                      value={deliveryMethod}
+                      onChange={(e) => setDeliveryMethod(e.target.value)}
+                      className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-900 mb-1">Data Combinada</label>
+                    <input
+                      type="date"
+                      required
+                      value={agreedDate}
+                      onChange={(e) => setAgreedDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
