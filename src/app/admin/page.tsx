@@ -12,6 +12,7 @@ export default function AdminDashboard() {
   const { user, loading } = useAuth(true);
   const [items, setItems] = useState<Item[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
+  const [hideSold, setHideSold] = useState(false);
 
   // Modal State for Sale Details
   const [selectedItemForSale, setSelectedItemForSale] = useState<Item | null>(null);
@@ -154,6 +155,8 @@ export default function AdminDashboard() {
 
   if (!user) return null; // Redirect handled by useAuth
 
+  const filteredItems = hideSold ? items.filter(item => item.status !== 'sold') : items;
+
   return (
     <div className="space-y-6">
       {/* Header do Painel */}
@@ -245,9 +248,20 @@ export default function AdminDashboard() {
 
       {/* Tabela de Itens */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-slate-800">Seus Itens Cadastrados</h2>
-          <span className="text-xs text-slate-400 font-medium">{items.length} cadastrados</span>
+        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-800">Seus Itens Cadastrados</h2>
+            <span className="text-xs text-slate-400 font-medium">{items.length} cadastrados</span>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-600 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 w-fit">
+            <input
+              type="checkbox"
+              className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              checked={hideSold}
+              onChange={(e) => setHideSold(e.target.checked)}
+            />
+            Ocultar itens vendidos
+          </label>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-600">
@@ -261,14 +275,14 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {items.length === 0 ? (
+              {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                    Nenhum item cadastrado ainda.
+                    Nenhum item encontrado.
                   </td>
                 </tr>
               ) : (
-                items.map((item) => (
+                filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
