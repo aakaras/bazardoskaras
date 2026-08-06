@@ -6,7 +6,7 @@ import { getItems, deleteItem, updateItemStatus, updateItem, Item, SaleDetails }
 import { auth, isConfigured } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import Link from "next/link";
-import { Plus, Trash2, Edit, LogOut, ShoppingBag, DollarSign, Clock, CheckCircle2, FileText, MessageCircle, X } from "lucide-react";
+import { Plus, Trash2, Edit, LogOut, ShoppingBag, DollarSign, Clock, CheckCircle2, FileText, MessageCircle, X, Wallet, Hourglass } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth(true);
@@ -150,7 +150,13 @@ export default function AdminDashboard() {
   const negotiatingValue = negotiatingItems.reduce((acc, item) => acc + item.price, 0);
 
   const soldItems = items.filter(item => item.status === "sold");
-  const soldValue = soldItems.reduce((acc, item) => acc + item.price, 0);
+  const soldValue = soldItems.reduce((acc, item) => acc + (item.saleDetails?.pricePaid ?? item.price), 0);
+
+  const receivedItems = soldItems.filter(item => item.saleDetails?.hasPaid);
+  const receivedValue = receivedItems.reduce((acc, item) => acc + (item.saleDetails?.pricePaid ?? item.price), 0);
+
+  const pendingItems = soldItems.filter(item => item.saleDetails && !item.saleDetails.hasPaid);
+  const pendingValue = pendingItems.reduce((acc, item) => acc + (item.saleDetails?.pricePaid ?? item.price), 0);
 
   if (loading || loadingItems) {
     return <div className="text-center py-20">Carregando painel...</div>;
@@ -187,7 +193,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Grid de Métricas TOTAIS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {/* Total Geral */}
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
@@ -245,6 +251,30 @@ export default function AdminDashboard() {
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Vendido</p>
             <p className="text-xl font-bold text-rose-600">R$ {soldValue.toFixed(2).replace('.', ',')}</p>
             <p className="text-xs text-slate-500 font-medium">{soldItems.length} {soldItems.length === 1 ? 'item' : 'itens'}</p>
+          </div>
+        </div>
+
+        {/* Recebido */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+            <Wallet className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Já Recebido</p>
+            <p className="text-xl font-bold text-emerald-600">R$ {receivedValue.toFixed(2).replace('.', ',')}</p>
+            <p className="text-xs text-slate-500 font-medium">{receivedItems.length} {receivedItems.length === 1 ? 'item' : 'itens'}</p>
+          </div>
+        </div>
+
+        {/* A Receber */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+          <div className="p-3 bg-orange-50 text-orange-600 rounded-xl">
+            <Hourglass className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">A Receber</p>
+            <p className="text-xl font-bold text-orange-600">R$ {pendingValue.toFixed(2).replace('.', ',')}</p>
+            <p className="text-xs text-slate-500 font-medium">{pendingItems.length} {pendingItems.length === 1 ? 'item' : 'itens'}</p>
           </div>
         </div>
       </div>
