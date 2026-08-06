@@ -30,6 +30,7 @@ function EditItemContent() {
   const [salePricePaid, setSalePricePaid] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("Retirada no local");
   const [agreedDate, setAgreedDate] = useState("");
+  const [hasPaid, setHasPaid] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -57,9 +58,11 @@ function EditItemContent() {
           setSalePricePaid(data.saleDetails.pricePaid.toString());
           setDeliveryMethod(data.saleDetails.deliveryMethod);
           setAgreedDate(data.saleDetails.agreedDate);
+          setHasPaid(data.saleDetails.hasPaid || false);
         } else {
           setSalePricePaid(data.price.toString());
           setAgreedDate(new Date().toISOString().split('T')[0]);
+          setHasPaid(false);
         }
       }
     } catch (error) {
@@ -128,6 +131,7 @@ function EditItemContent() {
           pricePaid: parseFloat(salePricePaid),
           deliveryMethod,
           agreedDate,
+          hasPaid,
         };
       }
 
@@ -311,6 +315,18 @@ function EditItemContent() {
                       onChange={(e) => setAgreedDate(e.target.value)}
                       className="w-full px-3 py-2 border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 bg-white"
                     />
+                  </div>
+
+                  <div className="sm:col-span-2 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer bg-emerald-100/50 p-3 rounded-lg border border-emerald-200/50">
+                      <input
+                        type="checkbox"
+                        checked={hasPaid}
+                        onChange={(e) => setHasPaid(e.target.checked)}
+                        className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                      />
+                      <span className="text-sm font-medium text-emerald-900">Pagamento já recebido</span>
+                    </label>
                   </div>
                 </div>
               </div>

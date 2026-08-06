@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [pricePaid, setPricePaid] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("Retirada no local");
   const [agreedDate, setAgreedDate] = useState("");
+  const [hasPaid, setHasPaid] = useState(false);
   const [submittingSale, setSubmittingSale] = useState(false);
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
     setPricePaid(item.price.toString());
     setDeliveryMethod("Retirada no local");
     setAgreedDate(new Date().toISOString().split('T')[0]); // Today's date by default
+    setHasPaid(false);
   };
 
   const handleSaveSaleDetails = async (e: React.FormEvent) => {
@@ -85,6 +87,7 @@ export default function AdminDashboard() {
         pricePaid: parseFloat(pricePaid),
         deliveryMethod,
         agreedDate,
+        hasPaid,
       };
 
       await updateItem(selectedItemForSale.id, { 
@@ -328,6 +331,11 @@ export default function AdminDashboard() {
                           {item.interestedCount} {item.interestedCount === 1 ? 'interessado' : 'interessados'}
                         </span>
                       ) : null}
+                      {item.status === 'sold' && item.saleDetails && (
+                        <span className={`text-[11px] px-2 py-0.5 rounded-md font-semibold block mt-1.5 w-fit border ${item.saleDetails.hasPaid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                          {item.saleDetails.hasPaid ? 'Pago' : 'Pendente Pagamento'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       {item.status === "sold" && item.saleDetails && (
@@ -438,6 +446,19 @@ export default function AdminDashboard() {
                   onChange={(e) => setAgreedDate(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-br-green/50"
                 />
+              </div>
+
+              <div className="flex items-center gap-2 mt-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <input
+                  type="checkbox"
+                  id="hasPaidModal"
+                  checked={hasPaid}
+                  onChange={(e) => setHasPaid(e.target.checked)}
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="hasPaidModal" className="text-sm font-medium text-slate-700 cursor-pointer">
+                  Pagamento já recebido
+                </label>
               </div>
 
               <div className="pt-4 flex gap-3">

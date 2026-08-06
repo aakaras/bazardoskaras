@@ -32,6 +32,7 @@ export interface SaleDetails {
   pricePaid: number;
   deliveryMethod: string;
   agreedDate: string;
+  hasPaid?: boolean;
 }
 
 export interface Item {
