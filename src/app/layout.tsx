@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { PushNotificationBanner } from "@/components/PushNotificationBanner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -37,12 +38,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} antialiased min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
         <Header />
         <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
         <Footer />
+        <PushNotificationBanner />
       </body>
     </html>
   );

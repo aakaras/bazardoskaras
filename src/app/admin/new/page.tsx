@@ -19,6 +19,25 @@ export default function NewItem() {
   const [status, setStatus] = useState<ItemStatus>("available");
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [githubToken, setGithubToken] = useState("");
+
+  // Load github token from localStorage on mount
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const savedToken = localStorage.getItem("github_pat");
+      if (savedToken) setGithubToken(savedToken);
+    }
+  });
+
+  const handleGithubTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setGithubToken(val);
+    if (val) {
+      localStorage.setItem("github_pat", val);
+    } else {
+      localStorage.removeItem("github_pat");
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -222,6 +241,18 @@ export default function NewItem() {
                 </label>
               )}
             </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100">
+            <label className="block text-sm font-semibold text-slate-800 mb-1">GitHub Access Token (Opcional - Para Push Notifications)</label>
+            <p className="text-xs text-slate-500 mb-2">Para notificar os usuários quando publicar um item, insira seu PAT do GitHub (com permissão de repo) salvo apenas neste navegador.</p>
+            <input
+              type="password"
+              value={githubToken}
+              onChange={handleGithubTokenChange}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 text-sm"
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+            />
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">

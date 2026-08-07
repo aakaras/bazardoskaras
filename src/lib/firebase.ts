@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,4 +24,5 @@ const app = isConfigured
 export const db = isConfigured ? getFirestore(app) : {} as any;
 export const storage = isConfigured ? getStorage(app) : {} as any;
 export const auth = isConfigured ? getAuth(app) : {} as any;
+export const messaging = isConfigured ? async () => (await isSupported()) ? getMessaging(app) : null : async () => null;
 export { isConfigured };
