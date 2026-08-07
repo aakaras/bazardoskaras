@@ -152,7 +152,7 @@ export async function createItem(item: Omit<Item, "id" | "createdAt">): Promise<
     try {
       const githubToken = localStorage.getItem("github_pat");
       if (githubToken) {
-        await fetch("https://api.github.com/repos/aakaras/bazardoskaras/dispatches", {
+        const response = await fetch("https://api.github.com/repos/aakaras/bazardoskaras/dispatches", {
           method: "POST",
           headers: {
             "Accept": "application/vnd.github.v3+json",
@@ -167,6 +167,12 @@ export async function createItem(item: Omit<Item, "id" | "createdAt">): Promise<
             }
           })
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("GitHub API Error:", response.status, errorText);
+          alert(`Erro ao tentar disparar notificação no GitHub. Status: ${response.status}. Verifique se o seu Token tem a permissão 'repo'.`);
+        }
       }
     } catch (error) {
       console.error("Failed to trigger push notification workflow", error);
