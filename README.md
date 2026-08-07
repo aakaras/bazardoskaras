@@ -15,6 +15,8 @@ graph TD
     Hosting -->|Lê/Escreve Dados| Firestore[(Cloud Firestore - NoSQL)]
     Hosting -->|Upload de Imagens| ImgBB[(ImgBB API / Storage)]
     Admin -->|Autenticação| Auth[Firebase Auth]
+    Hosting -->|Dispara Web Push| GithubActions[GitHub Actions]
+    GithubActions -->|Envia Notificação| FCM[Firebase Cloud Messaging]
 ```
 
 ### 💻 Front-End
@@ -27,7 +29,35 @@ graph TD
 - **[Firebase Hosting](https://firebase.google.com/docs/hosting)**: Hospedagem global de alta performance para a aplicação estática via CDN.
 - **[Cloud Firestore](https://firebase.google.com/docs/firestore)**: Banco de dados NoSQL em tempo real para sincronização do catálogo de itens, reservas e métricas.
 - **[Firebase Authentication](https://firebase.google.com/docs/auth)**: Autenticação de administradores para controle de acesso ao painel de gestão.
+- **[Firebase Cloud Messaging (FCM)](https://firebase.google.com/docs/cloud-messaging)**: Serviço de entrega das notificações Web Push para os visitantes inscritos.
+- **[GitHub Actions](https://github.com/features/actions)**: Utilizado como um "backend serverless gratuito" para processar o envio das notificações Push em massa assim que um novo item é publicado.
 - **[ImgBB API](https://imgbb.com/)**: Armazenamento rápido de imagens dos produtos via API com suporte a URLs diretas.
+
+---
+
+## 🛠️ Funcionalidades do Painel Admin
+
+O painel administrativo (`/admin`) é o coração da gestão do bazar e já vem com as seguintes funcionalidades prontas para uso:
+
+1. **Gestão de Catálogo (CRUD)**:
+   - **Cadastro e Edição**: Upload de imagens, definição de preço, preço original (para cálculo de desconto), categoria e descrição.
+   - **Status Inteligentes**: Controle do ciclo de vida do item através dos status: `Rascunho`, `Disponível`, `Em Negociação` e `Vendido`.
+   - **Rascunhos**: Permite cadastrar dezenas de itens de forma privada e publicá-los (alterar para "Disponível") apenas quando estiver pronto.
+
+2. **Registro de Vendas Detalhado**:
+   - Ao marcar um item como `Vendido`, o sistema abre um formulário de captura detalhada.
+   - **Dados coletados**: Nome do Comprador, WhatsApp, Valor Efetivamente Pago (pode ser diferente do anunciado), Método de Entrega, Data Combinada e Status do Pagamento (Pago/Pendente).
+   - Botão de envio rápido de "Agradecimento e Recibo" via WhatsApp para o comprador.
+
+3. **Métricas Financeiras (Dashboard)**:
+   - Resumo em tempo real do faturamento do bazar.
+   - **Potencial Total**: Soma do valor de todos os itens disponíveis.
+   - **Em Negociação**: Valor trancado em itens reservados.
+   - **Total Vendido**: Soma do valor negociado de todos os itens já vendidos.
+   - **Total Recebido**: Caixa real (soma apenas das vendas marcadas com Status de Pagamento = "Pago").
+
+4. **Motor de Web Push Notifications**:
+   - Ao publicar um item (mudar de Rascunho para Disponível), o sistema usa o token PAT do administrador para acionar o GitHub Actions e avisar todos os visitantes inscritos.
 
 ---
 
@@ -77,6 +107,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=seu_projeto.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=seu_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=seu_app_id
 NEXT_PUBLIC_IMGBB_API_KEY=sua_chave_imgbb
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=sua_chave_vapid_para_web_push
 ```
 
 ### 4. Executar em Desenvolvimento
