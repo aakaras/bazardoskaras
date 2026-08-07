@@ -1,0 +1,28 @@
+name: Send Web Push Notification
+
+on:
+  repository_dispatch:
+    types: [new_item_published]
+
+jobs:
+  send-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install Firebase Admin
+        run: npm install firebase-admin
+        
+      - name: Run Push Notification Script
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          ITEM_ID: ${{ github.event.client_payload.itemId }}
+          ITEM_TITLE: ${{ github.event.client_payload.itemTitle }}
+        run: node scripts/send-push.mjs

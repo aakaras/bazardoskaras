@@ -146,6 +146,33 @@ export async function createItem(item: Omit<Item, "id" | "createdAt">): Promise<
     interestedCount: item.interestedCount || 0,
     createdAt: Date.now(),
   });
+
+  // Trigger push notifications via GitHub Actions if PAT is available
+  if (item.status !== "draft") {
+    try {
+      const githubToken = localStorage.getItem("github_pat");
+      if (githubToken) {
+        await fetch("https://api.github.com/repos/aakaras/bazardoskaras/dispatches", {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.github.v3+json",
+            "Authorization": `token ${githubToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            event_type: "new_item_published",
+            client_payload: {
+              itemId: docRef.id,
+              itemTitle: item.title
+            }
+          })
+        });
+      }
+    } catch (error) {
+      console.error("Failed to trigger push notification workflow", error);
+    }
+  }
+
   return docRef.id;
 }
 
