@@ -4,10 +4,11 @@ import { useEffect, useState, Suspense } from "react";
 import { getItem, Item, createReservation } from "@/services/items";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ShareModal } from "@/components/ShareModal";
 
 function ItemDetailsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [item, setItem] = useState<Item | null>(null);
@@ -86,10 +87,10 @@ function ItemDetailsContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors">
+      <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         <span>Voltar</span>
-      </Link>
+      </button>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
