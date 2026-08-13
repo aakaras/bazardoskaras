@@ -10,7 +10,7 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [hideSold, setHideSold] = useState(false);
+  const [showSold, setShowSold] = useState(false);
 
   useEffect(() => {
     loadItems();
@@ -38,9 +38,16 @@ export default function Home() {
     ? items
     : items.filter(item => item.category === selectedCategory);
 
-  if (hideSold) {
+  if (!showSold) {
     filteredItems = filteredItems.filter(item => item.status !== 'sold');
   }
+
+  // Ordena os itens: itens vendidos no final da lista
+  filteredItems = [...filteredItems].sort((a, b) => {
+    if (a.status === 'sold' && b.status !== 'sold') return 1;
+    if (a.status !== 'sold' && b.status === 'sold') return -1;
+    return 0;
+  });
 
   if (loading) {
     return (
@@ -84,10 +91,10 @@ export default function Home() {
               <input
                 type="checkbox"
                 className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                checked={hideSold}
-                onChange={(e) => setHideSold(e.target.checked)}
+                checked={showSold}
+                onChange={(e) => setShowSold(e.target.checked)}
               />
-              Ocultar itens vendidos
+              Mostrar itens vendidos
             </label>
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
