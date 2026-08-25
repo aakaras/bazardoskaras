@@ -8,13 +8,13 @@ import { Tag } from "lucide-react";
 
 let cachedItems: Item[] | null = null;
 let cachedCategory = "all";
-let cachedShowSold = false;
+let cachedHideSold = false;
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>(cachedItems || []);
   const [loading, setLoading] = useState(!cachedItems);
   const [selectedCategory, setSelectedCategory] = useState<string>(cachedCategory);
-  const [showSold, setShowSold] = useState(cachedShowSold);
+  const [hideSold, setHideSold] = useState(cachedHideSold);
 
   useEffect(() => {
     if (!cachedItems) {
@@ -29,8 +29,8 @@ export default function Home() {
   }, [selectedCategory]);
 
   useEffect(() => {
-    cachedShowSold = showSold;
-  }, [showSold]);
+    cachedHideSold = hideSold;
+  }, [hideSold]);
 
   const loadItems = async (isBackground = false) => {
     try {
@@ -56,7 +56,7 @@ export default function Home() {
     ? items
     : items.filter(item => item.category === selectedCategory);
 
-  if (!showSold) {
+  if (hideSold) {
     filteredItems = filteredItems.filter(item => item.status !== 'sold');
   }
 
@@ -109,10 +109,10 @@ export default function Home() {
               <input
                 type="checkbox"
                 className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                checked={showSold}
-                onChange={(e) => setShowSold(e.target.checked)}
+                checked={hideSold}
+                onChange={(e) => setHideSold(e.target.checked)}
               />
-              Mostrar itens vendidos
+              Ocultar itens vendidos
             </label>
           </div>
           <div className="flex flex-wrap gap-2 pt-1">
