@@ -4,7 +4,16 @@ export function Footer() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col items-center justify-center text-center space-y-3.5">
           <p className="text-sm text-slate-600 font-medium">
-            Muito obrigado por ajudar em nossa transição do Brasil 🇧🇷 para a Polônia 🇵🇱
+            Obrigado por visitar! Agora vivemos na Polônia 🇵🇱 — siga{" "}
+            <a
+              href="https://www.instagram.com/oskarasnapolonia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-pink-600 hover:underline"
+            >
+              @oskarasnapolonia
+            </a>{" "}
+            no Instagram
           </p>
 
           <a
