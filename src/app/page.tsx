@@ -83,15 +83,21 @@ export default function Home() {
           Bazar da Mudança
         </h1>
         <p className="text-slate-600 text-lg leading-relaxed">
-          Nossa família — Alison, Jeize, Samuel e Daniel, junto dos nossos gatos Lupita e Gandalf — estamos nos mudando para a Polônia! ✈️ Nossa viagem está marcada para o dia <strong>24/09/2026</strong>.
-          Por isso, estamos vendendo alguns de nossos itens com muito carinho.
+          Nossa família já se mudou para a Polônia! 🇧🇷✈️🇵🇱 Este site agora é apenas um <strong>portfólio</strong> e um exemplo de como o código, disponível gratuitamente no <a href="https://github.com/aakaras/bazardoskaras" target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-slate-900">GitHub</a>, pode ser usado para criar um Bazar ou uma vitrine virtual.
         </p>
         
         <div className="bg-amber-50 text-amber-800 p-4 rounded-xl text-sm sm:text-base border border-amber-100 shadow-sm mt-6 text-left">
-          <strong>Atenção:</strong> Nenhuma venda ou pagamento é realizado diretamente por este site. 
-          Todas as negociações, formas de pagamento, e combinações sobre retirada ou entrega serão feitas exclusivamente pelo <strong>WhatsApp</strong>. 
-          <span className="block mt-1 text-amber-700/80 italic">
-            *Em caso de entrega, as despesas de envio ficarão por conta do comprador.
+          <strong>Atenção:</strong> Os itens abaixo são apenas demonstrativos e não estão mais à venda.
+          <span className="block mt-2">
+            Quer acompanhar nossas aventuras na Polônia? Siga a gente no Instagram:{" "}
+            <a
+              href="https://www.instagram.com/oskarasnapolonia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline hover:text-amber-900"
+            >
+              @oskarasnapolonia
+            </a>
           </span>
         </div>
       </div>
