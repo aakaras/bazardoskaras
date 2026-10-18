@@ -8,14 +8,14 @@ import { PushNotificationBanner } from "@/components/PushNotificationBanner";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Bazar da Mudança - Brasil para Polônia",
-  description: "Estamos de mudança! Nossa família está indo para a Polônia e vendendo alguns itens com muito carinho.",
+  title: "Bazar da Mudança - Portfólio",
+  description: "Portfólio e exemplo de Bazar/vitrine virtual com código gratuito no GitHub. Siga nossas aventuras na Polônia: @oskarasnapolonia",
   icons: {
     icon: "/icon.png",
   },
   openGraph: {
-    title: "Bazar da Mudança - Brasil para Polônia",
-    description: "Estamos de mudança! Nossa família está indo para a Polônia e vendendo alguns itens com muito carinho.",
+    title: "Bazar da Mudança - Portfólio",
+    description: "Portfólio e exemplo de Bazar/vitrine virtual com código gratuito no GitHub. Siga nossas aventuras na Polônia: @oskarasnapolonia",
     url: "https://bazardoskaras.web.app",
     siteName: "Bazar da Mudança",
     images: [
